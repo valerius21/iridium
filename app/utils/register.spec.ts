@@ -1,11 +1,21 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test, afterAll } from "vitest";
-import { fetchConfig } from "./register";
+import { fetchConfig, getAvailableSlotsFromConfig } from "./register";
 
 import type { SetupServerApi } from "msw/node";
 
 let worker: SetupServerApi;
+
+const testUser = {
+  ticket: "fox",
+  country: true,
+  tos: true,
+  age: "18-24",
+  gender: "w",
+  socialNetworks: true,
+};
+
 const testConfig = `
 ---
 distribution:
@@ -50,8 +60,23 @@ test("should retrieve the test config", async () => {
 });
 
 test.todo("should sign up a user");
-test.todo("should fail, if the male quota is met");
-test.todo("should fail, if the female quota is met");
+test("should validate the config percentiles", async () => {
+  const config = await fetchConfig(endpoint("/config"));
+  const dist = getAvailableSlotsFromConfig(config, "18-24");
+  expect(dist.w).toBe(4);
+  expect(dist.m).toBe(4);
+  expect(dist.d).toBe(2);
+  console.log(dist);
+});
+
+test.fails(
+  "should fail if non-present age-rage is going to be admitted",
+  async () => {
+    const config = await fetchConfig(endpoint("/config"));
+    getAvailableSlotsFromConfig(config, "19-24");
+  }
+);
+
 test.todo("should have only female and diverse if men quota is met");
 test.todo("should have only male and diverse if men quota is met");
 test.todo("should assert, that male and diverse quota meets the percentiles");
@@ -59,5 +84,7 @@ test.todo("should assert, that female and diverse quota meets the percentiles");
 test.todo(
   "should assert, that after diverse is full, only male and female quotas are free"
 );
-
 test.todo("should register a user via the action function");
+
+test.todo("should fail, if the male quota is met");
+test.todo("should fail, if the female quota is met");
