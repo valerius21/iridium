@@ -61,6 +61,7 @@ export const getAvailableSlotsFromConfig = (
 };
 
 // give back availabe slots for a given range (db)
+// Note: Queries could be optimized by taking the gender into account, but it is for the scale of the study sufficient
 export const getUsedSlotsFromDB = async (age: string): Promise<GenderDist> => {
   const m = await prisma.user.count({
     where: {
@@ -105,19 +106,8 @@ export const slotAvailable = async (
   return gender == "m" ? mAvailable > 0 : wAvailable > 0;
 };
 
-// Validate a sign-up request
-export const validateSignUp = (
-  config: Config,
-  request: SignUpRequest
-): boolean => {
-  throw new Error("Not implemented");
-};
-
-// signup action function
-export const action: ActionFunction = async ({ request }) => {
-  const body = await request.formData();
-
-  // parse the body
+// parse the body
+const parseRequest = (body: FormData): SignUpRequest => {
   const ticket = body.get("ticket");
   invariant(ticket, "Ticket is required");
   const country = body.get("country");
@@ -131,7 +121,7 @@ export const action: ActionFunction = async ({ request }) => {
   const gender = body.get("gender");
   invariant(gender, "gender is required");
 
-  const signUpRequest: SignUpRequest = {
+  return {
     ticket: ticket as string,
     country: country == "on",
     tos: tos == "on",
@@ -139,8 +129,28 @@ export const action: ActionFunction = async ({ request }) => {
     gender: gender as string,
     socialNetworks: social == "on",
   };
+};
 
-  console.log(signUpRequest);
+// Validate a sign-up request
+export const validateSignUp = (
+  config: Config,
+  { age, gender }: SignUpRequest
+): Promise<boolean> => {
+  invariant(gender == "w" || gender == "m" || gender == "d", "Invalid gender");
+  return slotAvailable(config, age, gender);
+};
+
+// signup action function
+export const action: ActionFunction = async ({ request }) => {
+  const configURL = process.env.CONFIG_URL || "";
+  invariant(configURL.length > 0, "CONFIG_URL is not set");
+  const body = await request.formData();
+  const requestData = parseRequest(body);
+
+  const isValid = await validateSignUp(
+    await fetchConfig(configURL),
+    requestData
+  );
 
   return redirect("/survey/1");
 };
