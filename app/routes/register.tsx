@@ -1,6 +1,8 @@
 import { useField, useIsSubmitting, ValidatedForm } from "remix-validated-form";
-import { register as validator } from "~/utils/validators";
+import { register, register as validator } from "~/utils/validators";
 import classNames from "classnames";
+import { Link, useSearchParams } from "@remix-run/react";
+import { action as registerAction } from "~/utils/register";
 
 const XIcon = () => (
   <svg width="1em" height="1em" viewBox="0 0 24 24">
@@ -21,10 +23,17 @@ const CheckboxInput = ({
   label: string;
 }) => {
   const { error, getInputProps, validate } = useField(name);
+  const [searchParams] = useSearchParams();
 
   return (
     <>
-      <p>{title}</p>
+      {name == "tos" ? (
+        <Link to={`/datenschutz?tic=${searchParams.get("tic")}`}>
+          <p>{title}</p>
+        </Link>
+      ) : (
+        <p>{title}</p>
+      )}
       <label
         htmlFor={`${name}-field`}
         className="label cursor-pointer"
@@ -163,12 +172,33 @@ const SubmitButton = () => {
   );
 };
 
+export const action = registerAction;
+
 const Register = () => {
+  const [searchParams] = useSearchParams();
+  const ticket = searchParams.get("tic") || "";
+
   return (
     <>
       <div className="prose mx-auto">
         <h1>Registrieren</h1>
-        <ValidatedForm validator={validator} id="registerForm">
+        {!ticket && (
+          <div className="alert alert-error mt-3 shadow-lg">
+            <div>
+              <XIcon />
+              <span>Es wurde kein Respondi-Ticket gefunden</span>
+            </div>
+          </div>
+        )}
+        <ValidatedForm
+          validator={validator}
+          id="registerForm"
+          method="post"
+          action="/register"
+        >
+          {/* TICKET */}
+          <input type={`hidden`} name="ticket" value={ticket} />
+
           <div className="form-control w-full">
             {/* AGE */}
             <AgeInput />
@@ -193,7 +223,7 @@ const Register = () => {
             {/* TOS */}
             <CheckboxInput
               name="tos"
-              title="Datenschutz- und nutzungsbestimmungen"
+              title="Datenschutz- und Nutzungsbestimmungen"
               label={`
                 Den Nutzungsbedingungen und Datenschutzrichtlinien stimme ich
                 zu. Mir ist bekannt, dass für die Benutzung der Website
@@ -202,9 +232,6 @@ const Register = () => {
             `}
             />
           </div>
-
-          {/* TICKET */}
-          {/* TODO: add ticket as hidden input */}
 
           <div className="my-5"></div>
           <SubmitButton />

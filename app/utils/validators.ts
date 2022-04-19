@@ -4,6 +4,7 @@ import { zfd } from "zod-form-data";
 
 export const register = withZod(
   z.object({
+    ticket: z.string().nonempty("Ticket is required"),
     age: z.string().nonempty("Alter ist erforderlich"),
     gender: z.string().nonempty("Geschlecht ist erfoderlich"),
     country: zfd
