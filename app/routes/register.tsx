@@ -1,8 +1,11 @@
 import { useField, useIsSubmitting, ValidatedForm } from "remix-validated-form";
-import { register, register as validator } from "~/utils/validators";
+import { register as validator } from "~/utils/validators";
 import classNames from "classnames";
-import { Link, useSearchParams } from "@remix-run/react";
-import { action as registerAction } from "~/utils/register";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  action as registerAction,
+  loader as registerLoader,
+} from "~/utils/register";
 
 const XIcon = () => (
   <svg width="1em" height="1em" viewBox="0 0 24 24">
@@ -115,7 +118,7 @@ const GenderInput = () => {
   );
 };
 
-const AgeInput = () => {
+const AgeInput = ({ ageRanges }: { ageRanges: string[] }) => {
   const { error, getInputProps, validate } = useField("age");
 
   const selectStyle = classNames(
@@ -140,9 +143,11 @@ const AgeInput = () => {
         <option disabled value={""}>
           Auswaehlen
         </option>
-        <option value="18-24">18-24</option>
-        <option value="25-34">25-34</option>
-        <option value="35-44">35-44</option>
+        {ageRanges.map((ageRange, i) => (
+          <option key={i} value={ageRange}>
+            {ageRange}
+          </option>
+        ))}
       </select>
 
       {error && (
@@ -172,11 +177,14 @@ const SubmitButton = () => {
   );
 };
 
+export const loader = registerLoader;
 export const action = registerAction;
 
 const Register = () => {
   const [searchParams] = useSearchParams();
   const ticket = searchParams.get("tic") || "";
+
+  const ageRanges = useLoaderData<string[]>();
 
   return (
     <>
@@ -201,7 +209,7 @@ const Register = () => {
 
           <div className="form-control w-full">
             {/* AGE */}
-            <AgeInput />
+            <AgeInput ageRanges={ageRanges} />
 
             {/* GENDER */}
             <GenderInput />

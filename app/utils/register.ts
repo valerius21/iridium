@@ -1,6 +1,7 @@
 import axios from "axios";
 import yaml from "js-yaml";
-import type { ActionFunction } from "@remix-run/server-runtime";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
+import { json } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
@@ -30,6 +31,13 @@ export interface SignUpRequest {
 export interface Distribution {
   [key: string]: number;
 }
+
+// Age distribution config URL
+const configURL =
+  process.env.VITEST || (process.env.NODE_ENV != "production" && "")
+    ? "http://localhost/config"
+    : process.env.CONFIG_URL || "";
+invariant(configURL.length > 0, "CONFIG_URL is not set");
 
 // Load config
 export const fetchConfig = async (url: string): Promise<Config> => {
@@ -142,8 +150,6 @@ export const validateSignUp = (
 
 // signup action function
 export const action: ActionFunction = async ({ request }) => {
-  const configURL = process.env.CONFIG_URL || "";
-  invariant(configURL.length > 0, "CONFIG_URL is not set");
   const body = await request.formData();
   const requestData = parseRequest(body);
 
@@ -156,4 +162,12 @@ export const action: ActionFunction = async ({ request }) => {
   // redirect to survey and set cookie
 
   return redirect("/survey/1");
+};
+
+// Data-loading function
+export const loader: LoaderFunction = async () => {
+  const config = await fetchConfig(configURL);
+
+  // age ranges
+  return json([...Object.keys(config.distribution)]);
 };
