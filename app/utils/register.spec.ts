@@ -40,9 +40,12 @@ const testUser: {
   updatedAt: new Date(),
 };
 
+// See:
+// https://gist.githubusercontent.com/valerius21/669ca8266650fc5e44a7a9b0305b54b1/raw/7d64975bd6a80ff1a0aa8e1506f07224143ebee9/dfg_config.yaml
 const testConfig = `
 ---
 distribution:
+  # The keys (ex. 18-24) correspond with the select options in the /register form
   18-24: 10
   25-29: 10
   30-34: 10
@@ -53,8 +56,19 @@ distribution:
   55-59: 10
   60-64: 10
   65-67: 10
+# gender percentages in percent. < 100% leaves room for the 'diverse' option
 male-percentage: 40
 female-percentage: 40
+# respondi redirect links. the respondi ticket gets appended in the webapp
+redirects:
+  # C1
+  screenout: https://mingle.respondi.com/s/1589997/ospe.php3?c_0002=0&return_tic=
+  # C2
+  quotafull: https://mingle.respondi.com/s/1589997/ospe.php3?c_0002=2&return_tic=
+  # C2.1 failed attention checks (disabled)
+  quality: https://mingle.respondi.com/s/1589997/ospe.php3?c_0002=2&return_tic=
+  # C3 
+  done: https://mingle.respondi.com/s/1589997/ospe.php3?c_0002=1&return_tic=
       `;
 const endpoint = (path: string) => `http://localhost${path}`;
 

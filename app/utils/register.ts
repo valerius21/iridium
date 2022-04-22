@@ -1,8 +1,7 @@
 import axios from "axios";
 import yaml from "js-yaml";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
-import { json } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
+import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
 
@@ -158,9 +157,11 @@ export const action: ActionFunction = async ({ request }) => {
     requestData
   );
   // redirects to quotafull if no slot is available
+  if (!isValid) {
+  }
 
   // redirect to survey and set cookie
-
+  // TODO: set cookie
   return redirect("/survey/1");
 };
 
