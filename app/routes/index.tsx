@@ -73,6 +73,7 @@ const Home = () => {
 
         <Link to={`/register?tic=${ticket}`}>
           <button
+            id="start"
             className="btn btn-primary btn-xl mr-10 w-full"
             disabled={ticket.length < 1}
           >

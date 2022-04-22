@@ -6,24 +6,22 @@ import {
   action as registerAction,
   loader as registerLoader,
 } from "~/utils/register";
+import { Slash, Info } from "lucide-react";
 
-const XIcon = () => (
-  <svg width="1em" height="1em" viewBox="0 0 24 24">
-    <path
-      fill="currentColor"
-      d="m12 10.586l4.95-4.95l1.414 1.414l-4.95 4.95l4.95 4.95l-1.414 1.414l-4.95-4.95l-4.95 4.95l-1.414-1.414l4.95-4.95l-4.95-4.95L7.05 5.636z"
-    ></path>
-  </svg>
-);
+const XIcon = () => <Slash />;
 
 const CheckboxInput = ({
   title,
   name,
   label,
+  ticket,
+  c2link,
 }: {
   title: string;
   name: string;
   label: string;
+  c2link: string;
+  ticket: string;
 }) => {
   const { error, getInputProps, validate } = useField(name);
   const [searchParams] = useSearchParams();
@@ -52,12 +50,24 @@ const CheckboxInput = ({
         />
       </label>
       {error && (
-        <div className="alert alert-error shadow-lg">
-          <div>
-            <XIcon />
-            <span>{error}</span>
+        <>
+          <div className="alert alert-error shadow-lg">
+            <div>
+              <XIcon />
+              <span>{error}</span>
+            </div>
           </div>
-        </div>
+          <br />
+          <div className="alert alert-info shadow-lg">
+            <div>
+              <Info />
+              <span>
+                If you can't check this box, please follow{" "}
+                <a href={c2link + ticket}>this link.</a>
+              </span>
+            </div>
+          </div>
+        </>
       )}
     </>
   );
@@ -152,7 +162,7 @@ const AgeInput = ({ ageRanges }: { ageRanges: string[] }) => {
 
       {error && (
         <>
-          <div className="alert alert-error mt-3 shadow-lg">
+          <div className="alert alert-error mt-5 shadow-lg">
             <div>
               <XIcon />
               <span>Bitte waehlen Sie eine Option aus</span>
@@ -184,7 +194,10 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   const ticket = searchParams.get("tic") || "";
 
-  const ageRanges = useLoaderData<string[]>();
+  const { ageRanges, c2link } = useLoaderData<{
+    ageRanges: string[];
+    c2link: string;
+  }>();
 
   return (
     <>
@@ -219,6 +232,8 @@ const Register = () => {
               name="country"
               title="Land"
               label="Ich bin derzeit wohnhaft in Deutschland"
+              ticket={ticket}
+              c2link={c2link}
             />
 
             {/* OSN */}
@@ -226,18 +241,22 @@ const Register = () => {
               name="socialNetworks"
               title="Studie"
               label="Ich benutze regelmäßig mindestens ein soziales Netzwerk"
+              c2link={c2link}
+              ticket={ticket}
             />
 
             {/* TOS */}
             <CheckboxInput
               name="tos"
               title="Datenschutz- und Nutzungsbestimmungen"
+              ticket={ticket}
               label={`
                 Den Nutzungsbedingungen und Datenschutzrichtlinien stimme ich
                 zu. Mir ist bekannt, dass für die Benutzung der Website
                 wesentliche Cookies verwendet werden. Wenn Sie fortfahren,
                 erklären Sie sich damit einverstanden.
             `}
+              c2link={c2link}
             />
           </div>
 

@@ -14,6 +14,7 @@ export interface Config {
     screenout: string;
     quality: string;
     done: string;
+    quotafull: string;
   };
 }
 
@@ -161,9 +162,25 @@ export const action: ActionFunction = async ({ request }) => {
     await fetchConfig(configURL),
     requestData
   );
+
+  const { age, country, gender, ticket } = requestData;
+
   // redirects to quotafull if no slot is available
   if (!isValid) {
+    const config = await fetchConfig(configURL);
+    return redirect(config.redirects.quotafull + ticket);
   }
+
+  // create a user
+  const user = await prisma.user.create({
+    data: {
+      age,
+      country,
+      gender,
+      ticket,
+    },
+  });
+  console.log(user);
 
   // redirect to survey and set cookie
   // TODO: set cookie
@@ -175,5 +192,8 @@ export const loader: LoaderFunction = async () => {
   const config = await fetchConfig(configURL);
 
   // age ranges
-  return json([...Object.keys(config.distribution)]);
+  return json({
+    ageRanges: [...Object.keys(config.distribution)],
+    c2link: config.redirects.screenout,
+  });
 };
