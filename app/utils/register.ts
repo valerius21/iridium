@@ -10,6 +10,11 @@ export interface Config {
   distribution: Distribution;
   "male-percentage": number;
   "female-percentage": number;
+  redirects: {
+    screenout: string;
+    quality: string;
+    done: string;
+  };
 }
 
 type GenderDist = {
