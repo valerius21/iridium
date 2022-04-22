@@ -107,7 +107,7 @@ export const slotAvailable = async (
 };
 
 // parse the body
-const parseRequest = (body: FormData): SignUpRequest => {
+export const parseRequest = (body: FormData): SignUpRequest => {
   const ticket = body.get("ticket");
   invariant(ticket, "Ticket is required");
   const country = body.get("country");

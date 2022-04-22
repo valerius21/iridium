@@ -5,12 +5,14 @@ import {
   fetchConfig,
   getAvailableSlotsFromConfig,
   getUsedSlotsFromDB,
+  parseRequest,
   slotAvailable,
+  validateSignUp,
 } from "./register";
 
 import type { SetupServerApi } from "msw/node";
 import { prisma } from "~/db.server";
-import type { User } from "@prisma/client";
+import { FormData } from "@remix-run/node";
 
 let worker: SetupServerApi;
 
@@ -122,41 +124,112 @@ test("should retrieve used slots from the database", async () => {
   });
 });
 
-test.todo("should have only female and diverse if men quota is met");
-test.todo("should have only male and diverse if men quota is met");
-test.todo("should assert, that male and diverse quota meets the percentiles");
-test.todo("should assert, that female and diverse quota meets the percentiles");
-test.todo(
-  "should assert, that after diverse is full, only male and female quotas are free"
-);
 test.todo("should register a user via the action function");
 
+test("should have only female and diverse if men quota is met", async () => {
+  const config = await fetchConfig(endpoint("/config"));
+
+  // create 4 males
+  await Promise.all(
+    [1, 2, 3, 4].map(() =>
+      prisma.user.create({ data: { ...testUser, gender: "m" } })
+    )
+  );
+  let count = await prisma.user.count({ where: { gender: "m" } });
+  expect(count).toBe(4);
+
+  let isAvailable: boolean;
+
+  // create 2 diverse, check if a third is false
+  const divUser = { ...testUser, gender: "d" };
+  isAvailable = await slotAvailable(config, divUser.age, "d");
+  expect(isAvailable).toBeTruthy();
+  // create diverse
+  await prisma.user.createMany({
+    data: [divUser, divUser],
+  });
+  isAvailable = await slotAvailable(config, testUser.age, "d");
+  expect(isAvailable).toBeFalsy();
+
+  // create 4 females
+  await Promise.all(
+    [1, 2, 3, 4].map(async () => {
+      isAvailable = await slotAvailable(config, testUser.age, "w");
+      expect(isAvailable).toBeTruthy();
+      await prisma.user.create({ data: testUser });
+    })
+  );
+
+  // check all availablilities
+  isAvailable = await slotAvailable(config, testUser.age, "w");
+  expect(isAvailable).toBeFalsy();
+  isAvailable = await slotAvailable(config, testUser.age, "m");
+  expect(isAvailable).toBeFalsy();
+  isAvailable = await slotAvailable(config, testUser.age, "d");
+  expect(isAvailable).toBeFalsy();
+
+  // check if DB corresponds
+  const females = await prisma.user.count({ where: { gender: "w" } });
+  const males = await prisma.user.count({ where: { gender: "m" } });
+  const diverse = await prisma.user.count({ where: { gender: "d" } });
+
+  expect(females).toBe(4);
+  expect(males).toBe(4);
+  expect(diverse).toBe(2);
+
+  const allUsersCount = await prisma.user.count();
+  expect(allUsersCount).toBe(10);
+});
 test.fails("should fail, if the female quota is met", async () => {
   const config = await fetchConfig(endpoint("/config"));
   for (let index = 0; index < 11; index++) {
     await prisma.user.create({ data: testUser });
-    const isAvailable = await slotAvailable(
-      config,
-      testUser.age,
-      testUser.gender as "w" | "m" | "d"
-    );
+    const isAvailable = await slotAvailable(config, testUser.age, "w");
     expect(isAvailable).toBeTruthy();
   }
 });
+
 test.fails("should fail, if the male quota is met", async () => {
   const config = await fetchConfig(endpoint("/config"));
   for (let index = 0; index < 11; index++) {
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: { ...testUser, gender: "m" },
     });
-    const isAvailable = await slotAvailable(
-      config,
-      testUser.age,
-      testUser.gender as "w" | "m" | "d"
-    );
-    const count = await prisma.user.count({ where: { gender: "m" } });
-    console.log({ user, count, isAvailable });
-
+    const isAvailable = await slotAvailable(config, testUser.age, "m");
     expect(isAvailable).toBeTruthy();
   }
+});
+
+test("should parse a signup request into a SignUpRequest-Object", async () => {
+  let form = new FormData();
+  form.append("ticket", "fox");
+  form.append("country", "on");
+  form.append("socialNetworks", "on");
+  form.append("tos", "on");
+  form.append("gender", "w");
+  form.append("age", "18-24");
+
+  const sur = parseRequest(form);
+  expect(sur).toEqual({
+    ticket: "fox",
+    country: true,
+    tos: true,
+    age: "18-24",
+    gender: "w",
+    socialNetworks: true,
+  });
+});
+
+test("should validate a sign-up request as a wrapper of slotAvailable", async () => {
+  const config = await fetchConfig(endpoint("/config"));
+  const sur = {
+    ticket: "fox",
+    country: true,
+    tos: true,
+    age: "18-24",
+    gender: "w",
+    socialNetworks: true,
+  };
+  const result = await validateSignUp(config, sur);
+  expect(result).toBeTruthy();
 });
