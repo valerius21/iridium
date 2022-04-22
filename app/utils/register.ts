@@ -4,6 +4,7 @@ import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
+import { commitSession, getSession } from "~/sessions";
 
 // types
 export interface Config {
@@ -183,8 +184,12 @@ export const action: ActionFunction = async ({ request }) => {
   console.log(user);
 
   // redirect to survey and set cookie
-  // TODO: set cookie
-  return redirect("/survey/1");
+  const session = await getSession(request.headers.get("Cookie"));
+  session.set("uid", user.id);
+
+  return redirect("/survey/1", {
+    headers: { "Set-Cookie": await commitSession(session) },
+  });
 };
 
 // Data-loading function
