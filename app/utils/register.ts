@@ -151,6 +151,9 @@ export const action: ActionFunction = async ({ request }) => {
     await fetchConfig(configURL),
     requestData
   );
+  // redirects to quotafull if no slot is available
+
+  // redirect to survey and set cookie
 
   return redirect("/survey/1");
 };
