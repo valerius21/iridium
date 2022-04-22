@@ -20,7 +20,7 @@ model User {
   currentPrivateSubmissions Int      @default(0)
   currentPublicSubmissions  Int      @default(0)
   age                       String      
-  country                   String   
+  country                   Boolean   
   ticket                    String   
   gender                     String
 

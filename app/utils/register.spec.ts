@@ -1,19 +1,41 @@
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { beforeAll, expect, test, afterAll } from "vitest";
-import { fetchConfig, getAvailableSlotsFromConfig } from "./register";
+import {
+  fetchConfig,
+  getAvailableSlotsFromConfig,
+  getUsedSlotsFromDB,
+  slotAvailable,
+} from "./register";
 
 import type { SetupServerApi } from "msw/node";
+import { prisma } from "~/db.server";
+import type { User } from "@prisma/client";
 
 let worker: SetupServerApi;
 
-const testUser = {
+const testUser: {
+  // tos: boolean;
+  // socialNetworks: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  currentPrivateSubmissions: number;
+  currentPublicSubmissions: number;
+  age: string;
+  country: boolean;
+  ticket: string;
+  gender: string;
+} = {
   ticket: "fox",
   country: true,
-  tos: true,
+  // tos: true,
   age: "18-24",
   gender: "w",
-  socialNetworks: true,
+  // socialNetworks: true,
+  createdAt: new Date(),
+  currentPrivateSubmissions: 0,
+  currentPublicSubmissions: 0,
+  updatedAt: new Date(),
 };
 
 const testConfig = `
@@ -34,6 +56,8 @@ female-percentage: 40
       `;
 const endpoint = (path: string) => `http://localhost${path}`;
 
+const deleteAll = () => prisma.user.deleteMany();
+
 beforeAll(() => {
   // msw
   const configHandler = rest.get(endpoint("/config"), (_req, res, ctx) => {
@@ -45,7 +69,15 @@ beforeAll(() => {
   worker.listen();
 });
 
-afterAll(() => {
+beforeEach(async () => {
+  await deleteAll();
+});
+
+afterEach(async () => {
+  await deleteAll();
+});
+
+afterAll(async () => {
   worker.close();
 });
 
@@ -59,14 +91,12 @@ test("should retrieve the test config", async () => {
   expect(config["female-percentage"]).toBe(40);
 });
 
-test.todo("should sign up a user");
 test("should validate the config percentiles", async () => {
   const config = await fetchConfig(endpoint("/config"));
   const dist = getAvailableSlotsFromConfig(config, "18-24");
   expect(dist.w).toBe(4);
   expect(dist.m).toBe(4);
   expect(dist.d).toBe(2);
-  console.log(dist);
 });
 
 test.fails(
@@ -77,6 +107,21 @@ test.fails(
   }
 );
 
+test("should retrieve used slots from the database", async () => {
+  await prisma.user.createMany({
+    data: [testUser, testUser, testUser, testUser],
+  });
+
+  const dist = await getUsedSlotsFromDB("18-24");
+
+  expect(dist).toBeDefined();
+  expect(dist).toEqual({
+    w: 4,
+    m: 0,
+    d: 0,
+  });
+});
+
 test.todo("should have only female and diverse if men quota is met");
 test.todo("should have only male and diverse if men quota is met");
 test.todo("should assert, that male and diverse quota meets the percentiles");
@@ -86,5 +131,32 @@ test.todo(
 );
 test.todo("should register a user via the action function");
 
-test.todo("should fail, if the male quota is met");
-test.todo("should fail, if the female quota is met");
+test.fails("should fail, if the female quota is met", async () => {
+  const config = await fetchConfig(endpoint("/config"));
+  for (let index = 0; index < 11; index++) {
+    await prisma.user.create({ data: testUser });
+    const isAvailable = await slotAvailable(
+      config,
+      testUser.age,
+      testUser.gender as "w" | "m" | "d"
+    );
+    expect(isAvailable).toBeTruthy();
+  }
+});
+test.fails("should fail, if the male quota is met", async () => {
+  const config = await fetchConfig(endpoint("/config"));
+  for (let index = 0; index < 11; index++) {
+    const user = await prisma.user.create({
+      data: { ...testUser, gender: "m" },
+    });
+    const isAvailable = await slotAvailable(
+      config,
+      testUser.age,
+      testUser.gender as "w" | "m" | "d"
+    );
+    const count = await prisma.user.count({ where: { gender: "m" } });
+    console.log({ user, count, isAvailable });
+
+    expect(isAvailable).toBeTruthy();
+  }
+});
