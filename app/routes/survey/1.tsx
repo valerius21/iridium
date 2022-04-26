@@ -2,23 +2,26 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { makeDomainFunction } from "remix-domains";
 import RadioField from "~/components/form/survey/RadioField";
+import Form from "~/components/form";
 
-const validator = withZod(
-  z.object({
-    occupation: zfd.text(),
-    education: zfd.text(),
-    relationship_status: zfd.text(),
-  })
-);
+const schema = z.object({
+  occupation: zfd.text(),
+  education: zfd.text(),
+  relationship_status: zfd.text(),
+});
+
+export const mutation = makeDomainFunction(schema)(async (values) => {
+  console.log("Saving...", values);
+});
 
 const Demographics = () => {
-  let questionNo = 1;
   return (
     <>
-      <h2>Zielgruppendaten</h2>;
-      <ValidatedForm id="demograhics-form" >
-        {/* <RadioField
+      <h2>Zielgruppendaten</h2>;<form action=""></form>
+      {/* <ValidatedForm id="demograhics-form" validator={validator}> */}
+      {/* <RadioField
           label={`${questionNo++}.) Welche der folgenden Aussagen beschreibt Ihre derzeitige Tätigkeit am besten?`}
           name="occupation"
           options={[
@@ -54,10 +57,10 @@ const Demographics = () => {
             "Getrennt lebend",
             "Ledig",
             "Nicht antworten",
-          ]}
-        />
-        <button className="btn btn-primary my-5">Weiter</button> */}
-      </ValidatedForm>
+          ]} */}
+      {/* /> */}
+      {/* <button className="btn btn-primary my-5">Weiter</button> */}
+      {/* </ValidatedForm> */}
     </>
   );
 };
