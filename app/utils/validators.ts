@@ -21,3 +21,17 @@ export const register = withZod(
       .refine((x) => !!x, "Sie muessen die Nutzungsbedingungen akzeptieren"),
   })
 );
+
+export const radio = zfd
+  .repeatableOfType(z.string())
+  .refine(
+    (val) => val.length > 0,
+    "Sie muessen mindestens eine Option auswaehlen"
+  );
+
+export const checkbox = zfd
+  .repeatableOfType(z.string())
+  .refine(
+    (val) => val.length > 0 && val[0].length > 2,
+    "Sie muessen mindestens eine Option auswaehlen"
+  );

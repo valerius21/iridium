@@ -35,6 +35,7 @@
     "/public/build"
   ],
   "dependencies": {
+    "@hookform/resolvers": "^2.8.8",
     "@prisma/client": "^3.12.0",
     "@remix-run/express": "^1.4.1",
     "@remix-run/node": "^1.4.1",
@@ -50,6 +51,7 @@
     "js-yaml": "^4.1.0",
     "lucide-react": "^0.32.0",
     "morgan": "^1.10.0",
+    "nanoid": "^3.3.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "remix-domains": "^0.1.0",

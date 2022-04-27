@@ -4,7 +4,6 @@ import { getUserId } from "~/utils/session.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUserId(request);
-  console.log("user", user);
   return !!user;
 };
 
