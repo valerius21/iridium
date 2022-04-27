@@ -11,6 +11,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useCatch,
 } from "@remix-run/react";
 import Layout from "./components/Layout";
 
@@ -25,6 +26,27 @@ export const meta: MetaFunction = () => ({
   title: "Image Clasification Study",
   viewport: "width=device-width,initial-scale=1",
 });
+
+export function CatchBoundary() {
+  const caught = useCatch();
+  return (
+    <html>
+      <head>
+        <title>Oops!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <div className="pose mx-auto">
+          <h1>
+            Cannot find the page requested! {caught.status} {caught.statusText}
+          </h1>
+        </div>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
 
 export default function App() {
   return (

@@ -12,21 +12,23 @@ const Survey = () => {
 
   return (
     <>
-      <h1>Umfrage</h1>
-      {user ? (
-        <Outlet />
-      ) : (
-        <>
-          Session-Cookie wurde nicht gefunden.{" "}
-          <Link to="/">
-            <p className="link-primary">
-              Bitte wiederholen Sie den Vorgang, oder starten Sie den Prozenn
-              seitens Respondi/Mingle neu.
-            </p>
-            <button className="btn btn-secondary">Wiederholen</button>
-          </Link>
-        </>
-      )}
+      <div className="prose mx-auto max-w-2xl">
+        <h1>Umfrage</h1>
+        {user ? (
+          <Outlet />
+        ) : (
+          <>
+            Session-Cookie wurde nicht gefunden.{" "}
+            <Link to="/">
+              <p className="link-primary">
+                Bitte wiederholen Sie den Vorgang, oder starten Sie den Prozenn
+                seitens Respondi/Mingle neu.
+              </p>
+              <button className="btn btn-secondary">Wiederholen</button>
+            </Link>
+          </>
+        )}
+      </div>
     </>
   );
 };

@@ -35,3 +35,17 @@ export const checkbox = zfd
     (val) => val.length > 0 && val[0].length > 2,
     "Sie muessen mindestens eine Option auswaehlen"
   );
+
+export const likert = zfd
+  .repeatableOfType(
+    z
+      .string()
+      .refine(
+        (val) => val.length > 0,
+        "Sie muessen mindestens eine Option auswaehlen"
+      )
+  )
+  .refine(
+    (val) => val.length > 0,
+    "Sie muessen mindestens eine Option auswaehlen"
+  );
