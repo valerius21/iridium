@@ -4,9 +4,11 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { makeDomainFunction, inputFromForm } from "remix-domains";
 import { formAction } from "remix-forms";
 import { ValidatedForm } from "remix-validated-form";
+import invariant from "tiny-invariant";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import LikertField from "~/components/form/survey/LikertField";
+import { getImage } from "~/images.server";
 import { getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
 
@@ -29,7 +31,16 @@ export const action: ActionFunction = async ({ request }) => {
   const result = await mutation(await inputFromForm(request));
 
   console.log("Result:", result);
-  return formAction({ request, schema, mutation, successPath: "/images" });
+  const uid = await getUserId(request);
+  invariant(uid, "No user id");
+  const image = await getImage(uid);
+
+  return formAction({
+    request,
+    schema,
+    mutation,
+    successPath: `/images/${image.id}/qone`,
+  });
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
