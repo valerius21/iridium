@@ -64,7 +64,7 @@ const Images = () => {
   const headlines = (
     <>
       <h1 className="text-3xl font-bold">Image Evaluation</h1>
-      <h4 className="font-bold">{data.count} / 60</h4>
+      {/* <h4 classNme="font-bold">{data.count} / 60</h4> */}
     </>
   );
 
