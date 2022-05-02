@@ -198,3 +198,14 @@ export const loader: LoaderFunction = async () => {
     c2link: config.redirects.screenout,
   });
 };
+
+export const getMingleLinks = async () => {
+  const config = await fetchConfig(configURL);
+  return {
+    mingleLinks: {
+      screenout: config.redirects.screenout,
+      quality: config.redirects.quality,
+      done: config.redirects.done,
+    },
+  };
+};

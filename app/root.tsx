@@ -13,6 +13,7 @@ import {
   ScrollRestoration,
   useCatch,
 } from "@remix-run/react";
+import { RecoilRoot } from "recoil";
 import Layout from "./components/Layout";
 
 import tailwindStylesheetUrl from "./styles/tailwind.css";
@@ -56,12 +57,14 @@ export default function App() {
         <Links />
       </head>
       <body className="h-full">
-        <Layout>
-          <Outlet />
-          <ScrollRestoration />
-          <Scripts />
-          <LiveReload />
-        </Layout>
+        <RecoilRoot>
+          <Layout>
+            <Outlet />
+            <ScrollRestoration />
+            <Scripts />
+            <LiveReload />
+          </Layout>
+        </RecoilRoot>
       </body>
     </html>
   );

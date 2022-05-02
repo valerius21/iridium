@@ -1,14 +1,17 @@
-import { useParams } from "@remix-run/react";
-import type { ActionFunction } from "@remix-run/server-runtime";
-import { redirect } from "@remix-run/server-runtime";
+import { useLoaderData, useParams } from "@remix-run/react";
+import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { withZod } from "@remix-validated-form/with-zod";
-import { nanoid } from "nanoid";
+import { rearg } from "lodash";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { inputFromForm, makeDomainFunction } from "remix-domains";
 import { formAction } from "remix-forms";
 import { ValidatedForm } from "remix-validated-form";
+import invariant from "tiny-invariant";
 import { z } from "zod";
 import LikertScale from "~/components/form/survey/LikertField";
+import { UserAtom } from "~/routes/images";
 import { logger } from "~/utils/logger.server";
+import { getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
 const sensibleLikert: { fieldText: string; value: string | number }[] = [
   { fieldText: "nicht entscheidbar", value: "nicht entscheidbar" },
@@ -48,7 +51,6 @@ export const mutation = makeDomainFunction(schema)(async (values) => {
 
 export const action: ActionFunction = async ({ request, params }) => {
   const { img } = params;
-  // TODO:
   const result = await mutation(await inputFromForm(request));
   const { questionOne, confidenceOne } = (result as any).data;
 
@@ -62,8 +64,22 @@ export const action: ActionFunction = async ({ request, params }) => {
   });
 };
 
-const QuestionOne = () => {
+export const loader: LoaderFunction = async ({ request }) => {
+  const user = await getUserId(request);
+  return { user };
+};
+
+const QuestionOne = ({
+  isAttentionCheck = false,
+  actionEndpoint = "",
+}: {
+  isAttentionCheck?: boolean;
+  actionEndpoint?: string;
+}) => {
   const params = useParams();
+  // const { userId } = useLoaderData<{ userId: string }>();
+  const userId = useRecoilValue(UserAtom);
+  console.log(userId);
   return (
     <ValidatedForm
       method="post"
@@ -73,17 +89,29 @@ const QuestionOne = () => {
           confidenceOne: likert,
         })
       )}
-      action={`/images/${params.img}/qone`}
+      action={`/images/${params.img}${
+        actionEndpoint.length == 0 ? "/qone" : actionEndpoint
+      }`}
     >
       {/* QUESTION ONE */}
       <fieldset name="questionOne">
+        <input type="hidden" name="userId" value={userId} />
         <p id="question-one-title" className="font-semibold">
-          Angenommen, Sie hätten diese Bild mit Ihrer eigenen Kamera
-          aufgenommen, inwieweit würden Sie der folgenden Aussage zustimmen:{" "}
-          <br></br>
-          <span className="text-center italic">
-            Ich finde dieses Bild sensibel in Bezug auf meine Privatsphäre
-          </span>
+          {!isAttentionCheck ? (
+            <>
+              Angenommen, Sie hätten diese Bild mit Ihrer eigenen Kamera
+              aufgenommen, inwieweit würden Sie der folgenden Aussage zustimmen:{" "}
+              <br></br>
+              <span className="text-center italic">
+                Ich finde dieses Bild sensibel in Bezug auf meine Privatsphäre
+              </span>
+            </>
+          ) : (
+            <>
+              Wie wahrscheinlich ist es, dass Sie aufmerksam sind? Bitte wählen
+              Sie "nicht entscheidbar" aus.
+            </>
+          )}
         </p>
         <LikertScale
           title=""

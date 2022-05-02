@@ -1,8 +1,9 @@
 import type { Submission } from "@prisma/client";
 import { useLoaderData, Outlet } from "@remix-run/react";
 import type { Session, LoaderFunction } from "@remix-run/server-runtime";
-import type { FC } from "react";
+import { FC, useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
+import { atom, useRecoilState } from "recoil";
 import invariant from "tiny-invariant";
 import { getImage, getSubmissionCount } from "~/images.server";
 import type { ImageAttribute } from "~/utils/imageHelper.server";
@@ -12,6 +13,7 @@ import { badRequest, getUserId, getUserSession } from "~/utils/session.server";
 export const imageHost = "https://c102-251.cloud.gwdg.de";
 
 type LoaderType = {
+  uid: string;
   count: number;
   session: Session;
   image: {
@@ -54,12 +56,23 @@ export const loader: LoaderFunction = async ({
         image.attributes.filename
       }`,
     },
+    uid,
   };
 };
+
+export const UserAtom = atom<string>({
+  default: "",
+  key: "uid",
+});
 
 const Images = () => {
   const data = useLoaderData<LoaderType>();
   const isTabletOrMobile = useMediaQuery({ query: "(max-width: 1224px)" });
+  const [_uid, setUid] = useRecoilState(UserAtom);
+
+  useEffect(() => {
+    setUid(data.uid);
+  }, [data.uid, setUid]);
 
   const headlines = (
     <>

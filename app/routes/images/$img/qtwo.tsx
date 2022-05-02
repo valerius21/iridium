@@ -1,5 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { withZod } from "@remix-validated-form/with-zod";
 import _ from "lodash";
 import { inputFromForm, makeDomainFunction } from "remix-domains";
@@ -12,7 +13,9 @@ import InputField from "~/components/form/image/InputField";
 import LikertScale from "~/components/form/survey/LikertField";
 import { prisma } from "~/db.server";
 import { getImage, updateUserSubmissionCounts } from "~/images.server";
-import { getUserId } from "~/utils/session.server";
+import { isAttCheck } from "~/utils/att-checks";
+import { getMingleLinks } from "~/utils/register";
+import { getUser, getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
 import { qOneSchema } from "./qone";
 
@@ -115,6 +118,29 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const url = new URL(request.url);
   const qone = url.searchParams.get("question");
   const cone = url.searchParams.get("confidence");
+
+  invariant(userId, "uid is required");
+  const user = await getUser(userId);
+  invariant(user, "user not found");
+  const submissionCount =
+    user.currentPrivateSubmissions + user.currentPublicSubmissions;
+
+  if (submissionCount > 60) {
+    const {
+      mingleLinks: { done },
+    } = await getMingleLinks();
+
+    return redirect(done + user.ticket);
+  }
+
+  const attentionChecks = await prisma.attentionCheck.count({
+    where: { userId },
+  });
+
+  if (isAttCheck(submissionCount, attentionChecks)) {
+    return redirect(`/images/${datasetId}/att`);
+  }
+
   return {
     questionOne: qone,
     confidenceOne: cone,
