@@ -1,4 +1,4 @@
-import { Outlet, useLoaderData, useParams } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import type { LoaderFunction } from "@remix-run/server-runtime";
 import { useMediaQuery } from "react-responsive";
 import { prisma } from "~/db.server";
@@ -24,7 +24,6 @@ export const loader: LoaderFunction = async ({ params }) => {
     },
   };
   const resp = await prisma.dataset.findFirst({ ...args });
-  console.log({ resp });
   return {
     ...resp,
   };

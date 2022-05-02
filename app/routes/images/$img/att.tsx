@@ -18,26 +18,29 @@ export const mutation = makeDomainFunction(schema)(async (values) => {
   const passed = values.questionOne == "nicht entscheidbar";
   const { userId } = values;
 
-  // avoid duplicates
-  const timestamp = await prisma.attentionCheck.findFirst({
-    orderBy: {
-      createdAt: "desc",
-    },
-    where: {
-      userId,
-    },
-    select: {
-      createdAt: true,
-    },
-  });
+  const count = await prisma.attentionCheck.count();
+  if (count > 0) {
+    // avoid duplicates
+    const timestamp = await prisma.attentionCheck.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+      where: {
+        userId,
+      },
+      select: {
+        createdAt: true,
+      },
+    });
 
-  const lastAttCheckInSecs = differenceInSeconds(
-    new Date(),
-    timestamp!.createdAt
-  );
+    const lastAttCheckInSecs = differenceInSeconds(
+      new Date(),
+      timestamp!.createdAt
+    );
 
-  if (lastAttCheckInSecs < 5) {
-    return;
+    if (lastAttCheckInSecs < 5) {
+      return;
+    }
   }
 
   await prisma.attentionCheck.create({

@@ -1,12 +1,10 @@
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useParams } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { withZod } from "@remix-validated-form/with-zod";
-import { rearg } from "lodash";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { inputFromForm, makeDomainFunction } from "remix-domains";
 import { formAction } from "remix-forms";
 import { ValidatedForm } from "remix-validated-form";
-import invariant from "tiny-invariant";
 import { z } from "zod";
 import LikertScale from "~/components/form/survey/LikertField";
 import { UserAtom } from "~/routes/images";

@@ -14,6 +14,7 @@ import LikertScale from "~/components/form/survey/LikertField";
 import { prisma } from "~/db.server";
 import { getImage, updateUserSubmissionCounts } from "~/images.server";
 import { isAttCheck } from "~/utils/att-checks";
+import { logger } from "~/utils/logger.server";
 import { getMingleLinks } from "~/utils/register";
 import { getUser, getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
@@ -62,8 +63,10 @@ const schema = z.object({
   ...qOneSchema,
 });
 
+const TAG = "[images/id/qtwo]: ";
+
 export const mutation = makeDomainFunction(schema)(async (values) => {
-  console.log("Saving...", values);
+  logger.info(values, TAG + "mutation");
   const {
     confidenceOne,
     datasetId,
@@ -98,7 +101,7 @@ export const mutation = makeDomainFunction(schema)(async (values) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await mutation(await inputFromForm(request));
-  console.log("Result:", result);
+  logger.info(result, TAG + "action");
   const uid = await getUserId(request);
   invariant(uid, "uid is required");
   const image = await getImage(uid);
@@ -125,11 +128,22 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const submissionCount =
     user.currentPrivateSubmissions + user.currentPublicSubmissions;
 
-  if (submissionCount > 60) {
-    const {
-      mingleLinks: { done },
-    } = await getMingleLinks();
+  const failedAttentionChecks = await prisma.attentionCheck.count({
+    where: {
+      AND: [{ userId }, { passed: false }],
+    },
+  });
 
+  const {
+    mingleLinks: { done, quality },
+  } = await getMingleLinks();
+
+  // Qualityfail
+  if (failedAttentionChecks == 2) {
+    return redirect(quality + user.ticket);
+  }
+
+  if (submissionCount >= 60) {
     return redirect(done + user.ticket);
   }
 

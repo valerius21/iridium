@@ -1,7 +1,7 @@
 import type { Submission } from "@prisma/client";
 import { useLoaderData, Outlet } from "@remix-run/react";
 import type { Session, LoaderFunction } from "@remix-run/server-runtime";
-import { FC, useEffect } from "react";
+import { useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { atom, useRecoilState } from "recoil";
 import invariant from "tiny-invariant";
