@@ -6,9 +6,10 @@ import { formAction } from "remix-forms";
 import { ValidatedForm } from "remix-validated-form";
 import invariant from "tiny-invariant";
 import { z } from "zod";
-import { zfd } from "zod-form-data";
 import LikertField from "~/components/form/survey/LikertField";
+import { prisma } from "~/db.server";
 import { getImage } from "~/images.server";
+import { logger } from "~/utils/logger.server";
 import { getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
 
@@ -21,16 +22,82 @@ const schema = z.object({
   compare_privacy_with_others: likert,
   privacy_priority: likert,
   dont_care: likert,
+  public_self_information: likert,
+  information_access_concerns: likert,
+  out_of_context_information: likert,
+  overthinking_information: likert,
+  paranoid: likert,
+  consequences_of_sharing_personal_information: likert,
+  self_confident_info: likert,
+  self_confident_thoughts: likert,
+  sharing_feelings_with_others: likert,
 });
 
+const TAG = "[survey/3]";
+
 export const mutation = makeDomainFunction(schema)(async (values) => {
-  console.log("Saving...", values);
+  logger.info(values, TAG + "mutation");
+  const {
+    uid: userId,
+    sharing_personal_information_bothered,
+    sharing_personal_information_freely,
+    openess,
+    worried_about_privacy,
+    compare_privacy_with_others,
+    privacy_priority,
+    dont_care,
+    public_self_information,
+    information_access_concerns,
+    out_of_context_information,
+    overthinking_information,
+    paranoid,
+    consequences_of_sharing_personal_information,
+    self_confident_info,
+    self_confident_thoughts,
+    sharing_feelings_with_others,
+  } = values;
+
+  const exists = await prisma.surveyThree.count({
+    where: {
+      userId,
+    },
+  });
+
+  if (exists) {
+    logger.info(TAG + "mutation: already exists");
+    return;
+  }
+
+  return prisma.surveyThree.create({
+    data: {
+      compare_privacy_with_others: compare_privacy_with_others[0],
+      dont_care: dont_care[0],
+      sharing_personal_information_bothered:
+        sharing_personal_information_bothered[0],
+      sharing_personal_information_freely:
+        sharing_personal_information_freely[0],
+      consequences_of_sharing_personal_information:
+        consequences_of_sharing_personal_information[0],
+      self_confident_info: self_confident_info[0],
+      self_confident_thoughts: self_confident_thoughts[0],
+      sharing_feelings_with_others: sharing_feelings_with_others[0],
+      information_access_concerns: information_access_concerns[0],
+      out_of_context_information: out_of_context_information[0],
+      openess: openess[0],
+      paranoid: paranoid[0],
+      privacy_priority: privacy_priority[0],
+      public_self_information: public_self_information[0],
+      overthinking_information: overthinking_information[0],
+      worried_about_privacy: worried_about_privacy[0],
+      userId,
+    },
+  });
 });
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await mutation(await inputFromForm(request));
 
-  console.log("Result:", result);
+  logger.info(result, TAG + "action");
   const uid = await getUserId(request);
   invariant(uid, "No user id");
   const image = await getImage(uid);
@@ -91,10 +158,53 @@ const InterpersonalPrivacyConcerns = () => {
         />
 
         <LikertField
-          title={`${
-            questionNo + 1
-          }.) Es stört mich nicht, dass andere Menschen persönliche Dinge über mich wissen.`}
+          title={`${questionNo++}.) Es stört mich nicht, dass andere Menschen persönliche Dinge über mich wissen.`}
           name="dont_care"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Die meisten persönlichen Dinge, die ich mit anderen teile, sind ohnehin öffentlich zugänglich`}
+          name="public_self_information"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Ich habe Sorge, dass meine persönlichen Informationen von anderen Personen eingesehen werden als denjenigen, die sie sehen sollen.`}
+          name="information_access_concerns"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Ich mache mir Sorgen, dass andere Leute Dinge, die ich über mich preisgebe, aus dem Zusammenhang reißen könnten`}
+          name="out_of_context_information"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Wenn mich jemand nach etwas Persönlichem fragt, überlege ich manchmal zweimal, bevor ich es preisgebe.`}
+          name="overthinking_information"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Ich halte es für riskant, anderen persönliche Dinge über mich zu erzählen.`}
+          name="paranoid"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Die Weitergabe persönlicher Informationen an andere kann viele unerwartete Probleme mit sich bringen.`}
+          name="consequences_of_sharing_personal_information"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Ich fühle mich sicher dabei, anderen persönliche Dinge über mich zu erzählen.`}
+          name="self_confident_info"
+        />
+
+        <LikertField
+          title={`${questionNo++}.) Ich fühle mich wohl damit, meine privaten Gedanken und Gefühle mit anderen zu teilen.`}
+          name="self_confident_thoughts"
+        />
+
+        <LikertField
+          title={`${questionNo}.) Ich bespreche meine Probleme und Sorgen normalerweise mit anderen`}
+          name="sharing_feelings_with_others"
         />
 
         <button className="btn btn-primary my-5" type="submit">

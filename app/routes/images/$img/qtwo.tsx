@@ -83,7 +83,7 @@ const QuestionTwo = () => {
       <fieldset name="questionTwo" className="mb-5">
         <p id="question-two-title" className="font-semibold">
           Weiterhin unter der Annahme, dass Sie haben dieses Bild aufgenommen
-          haetten: Mit wem würden Sie es am ehesten teilen?
+          hätten: Mit wem würden Sie es am ehesten teilen?
         </p>
         <InputField
           type="checkbox"

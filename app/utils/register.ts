@@ -5,6 +5,7 @@ import { json, redirect } from "@remix-run/server-runtime";
 import invariant from "tiny-invariant";
 import { prisma } from "~/db.server";
 import { createUserSession } from "./session.server";
+import { logger } from "./logger.server";
 
 // types
 export interface Config {
@@ -181,7 +182,7 @@ export const action: ActionFunction = async ({ request }) => {
       ticket,
     },
   });
-  console.log(user);
+  logger.info(user, "User created");
 
   // redirect to survey and set cookie
   return createUserSession(user.id, "/survey/1");

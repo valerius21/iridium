@@ -8,6 +8,8 @@ import { withZod } from "@remix-validated-form/with-zod";
 import { formAction } from "remix-forms";
 import { getUserId } from "~/utils/session.server";
 import { useLoaderData } from "@remix-run/react";
+import { logger } from "~/utils/logger.server";
+import { prisma } from "~/db.server";
 
 const schema = z.object({
   uid: z.string(),
@@ -16,14 +18,36 @@ const schema = z.object({
   relationship_status: radio,
 });
 
+const TAG = "[survey/1] ";
+
 export const mutation = makeDomainFunction(schema)(async (values) => {
-  console.log("Saving...", values);
+  logger.info(values, TAG + "mutation");
+  const { education, occupation, relationship_status, uid } = values;
+  const exists = await prisma.surveyOne.findFirst({
+    where: {
+      userId: uid,
+    },
+  });
+
+  if (exists) {
+    logger.info(exists, TAG + "mutation: already exists");
+    return;
+  }
+
+  return prisma.surveyOne.create({
+    data: {
+      education: education[0],
+      occupation: occupation[0],
+      relationship_status: relationship_status[0],
+      userId: uid,
+    },
+  });
 });
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await mutation(await inputFromForm(request));
 
-  console.log("Result:", result);
+  logger.info(result, TAG + "action");
   return formAction({ request, schema, mutation, successPath: "/survey/2" });
 };
 

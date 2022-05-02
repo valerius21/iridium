@@ -9,6 +9,8 @@ import CheckBoxField from "~/components/form/survey/CheckBoxField";
 import { makeDomainFunction, inputFromForm } from "remix-domains";
 import { formAction } from "remix-forms";
 import { checkbox, radio } from "~/utils/validators";
+import { logger } from "~/utils/logger.server";
+import { prisma } from "~/db.server";
 
 const schema = z.object({
   uid: z.string(),
@@ -23,14 +25,59 @@ const schema = z.object({
   internet_usage_frequency_on_mobile: radio,
 });
 
+const TAG = "[survey/2] ";
+
 export const mutation = makeDomainFunction(schema)(async (values) => {
-  console.log("Saving...", values);
+  logger.info(values, TAG + "mutation");
+  const {
+    internet_usage_frequency_on_a_computer,
+    internet_usage_frequency_on_mobile,
+    photo_sharing_frequency,
+    photo_sharing_frequency_with_family_friends,
+    photo_sharing_frequency_with_other_people,
+    social_media_frequency,
+    social_networks,
+    social_networks_most_used_to_share_photos,
+    usual_demographic_groups,
+    uid,
+  } = values;
+
+  const exists = await prisma.surveyTwo.count({
+    where: {
+      userId: uid,
+    },
+  });
+
+  if (exists > 0) {
+    logger.info(TAG + "mutation: survey already exists");
+    return;
+  }
+
+  await prisma.surveyTwo.create({
+    data: {
+      internet_usage_frequency_on_a_computer:
+        internet_usage_frequency_on_a_computer[0],
+      internet_usage_frequency_on_mobile: internet_usage_frequency_on_mobile[0],
+      photo_sharing_frequency: photo_sharing_frequency[0],
+      photo_sharing_frequency_with_family_friends:
+        photo_sharing_frequency_with_family_friends[0],
+      photo_sharing_frequency_with_other_people:
+        photo_sharing_frequency_with_other_people[0],
+      social_media_frequency: social_media_frequency[0],
+      // checkboxes
+      social_networks,
+      social_networks_most_used_to_share_photos,
+      usual_demographic_groups,
+      // uid
+      userId: uid,
+    },
+  });
 });
 
 export const action: ActionFunction = async ({ request }) => {
   const result = await mutation(await inputFromForm(request));
 
-  console.log("Result:", result);
+  logger.info(result, TAG + "action");
   return formAction({ request, schema, mutation, successPath: "/survey/3" });
 };
 

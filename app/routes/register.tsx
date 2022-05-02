@@ -120,7 +120,7 @@ const GenderInput = () => {
         <div className="alert alert-error shadow-lg">
           <div>
             <XIcon />
-            <span>Bitte waehlen Sie eine Option aus</span>
+            <span>Bitte wählen Sie eine Option aus</span>
           </div>
         </div>
       )}
@@ -151,7 +151,7 @@ const AgeInput = ({ ageRanges }: { ageRanges: string[] }) => {
         onClick={validate}
       >
         <option disabled value={""}>
-          Auswaehlen
+          Auswählen
         </option>
         {ageRanges.map((ageRange, i) => (
           <option key={i} value={ageRange}>
@@ -165,7 +165,7 @@ const AgeInput = ({ ageRanges }: { ageRanges: string[] }) => {
           <div className="alert alert-error mt-5 shadow-lg">
             <div>
               <XIcon />
-              <span>Bitte waehlen Sie eine Option aus</span>
+              <span>Bitte wählen Sie eine Option aus</span>
             </div>
           </div>
         </>

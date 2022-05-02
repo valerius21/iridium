@@ -19,14 +19,17 @@ model User {
   updatedAt                 DateTime @updatedAt
   currentPrivateSubmissions Int      @default(0)
   currentPublicSubmissions  Int      @default(0)
-  age                       String      
-  country                   Boolean   
-  ticket                    String   
-  gender                     String
+  age                       String
+  country                   Boolean
+  ticket                    String
+  gender                    String
 
   Submission      Submission[]
   attentionChecks AttentionCheck[]
   Survey          Survey[]
+  SurveyOne       SurveyOne[]
+  SurveyTwo       SurveyTwo[]
+  SurveyThree     SurveyThree[]
 }
 
 model AttentionCheck {
@@ -47,21 +50,79 @@ model Dataset {
 }
 
 model Submission {
-  id          String      @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  questionOne String
-  questionTwo Json
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  questionOne   String
+  questionTwo   Json
   confidenceOne Int
   confidenceTwo Int
-  dataset     Dataset  @relation(fields: [datasetId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  datasetId   String
+  dataset       Dataset  @relation(fields: [datasetId], references: [id])
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  datasetId     String
+}
+
+model SurveyOne {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  education           String
+  occupation          String
+  relationship_status String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model SurveyTwo {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  social_networks                             String[]
+  social_media_frequency                      String
+  social_networks_most_used_to_share_photos   String[]
+  usual_demographic_groups                    String[]
+  photo_sharing_frequency                     String
+  photo_sharing_frequency_with_family_friends String
+  photo_sharing_frequency_with_other_people   String
+  internet_usage_frequency_on_a_computer      String
+  internet_usage_frequency_on_mobile          String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model SurveyThree {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sharing_personal_information_bothered        String
+  sharing_personal_information_freely          String
+  openess                                      String
+  worried_about_privacy                        String
+  compare_privacy_with_others                  String
+  privacy_priority                             String
+  dont_care                                    String
+  public_self_information                      String
+  information_access_concerns                  String
+  out_of_context_information                   String
+  overthinking_information                     String
+  paranoid                                     String
+  consequences_of_sharing_personal_information String
+  self_confident_info                          String
+  self_confident_thoughts                      String
+  sharing_feelings_with_others                 String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 }
 
 model Survey {
-  id                                           String      @id @default(cuid())
+  id                                           String   @id @default(cuid())
   createdAt                                    DateTime @default(now())
   updatedAt                                    DateTime @updatedAt
   occupation                                   String
