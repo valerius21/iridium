@@ -3,9 +3,12 @@ import type { ActionFunction } from "@remix-run/server-runtime";
 import { redirect } from "@remix-run/server-runtime";
 import { withZod } from "@remix-validated-form/with-zod";
 import { nanoid } from "nanoid";
+import { inputFromForm, makeDomainFunction } from "remix-domains";
+import { formAction } from "remix-forms";
 import { ValidatedForm } from "remix-validated-form";
 import { z } from "zod";
 import LikertScale from "~/components/form/survey/LikertField";
+import { logger } from "~/utils/logger.server";
 import { likert } from "~/utils/validators";
 const sensibleLikert: { fieldText: string; value: string | number }[] = [
   { fieldText: "nicht entscheidbar", value: "nicht entscheidbar" },
@@ -23,11 +26,40 @@ const confirmationLikert: { fieldText: string; value: string | number }[] = [
   { fieldText: "5 - sehr sicher", value: 5 },
 ];
 
+export const qOneSchema = {
+  questionOne: z.enum([
+    "nicht entscheidbar",
+    "stimme absolut nicht zu",
+    "stimme nicht zu",
+    "stimme zu",
+    "stimme voll zu",
+  ]),
+  confidenceOne: z.enum(["1", "2", "3", "4", "5"]),
+};
+
+const schema = z.object(qOneSchema);
+
+const TAG = "[images/id/qone]: ";
+
+export const mutation = makeDomainFunction(schema)(async (values) => {
+  logger.info(values, TAG + "mutation");
+  return values;
+});
+
 export const action: ActionFunction = async ({ request, params }) => {
   const { img } = params;
   // TODO:
-  const submissionId = nanoid(10);
-  return redirect(`/images/${img}/qtwo?submissionId=${submissionId}`);
+  const result = await mutation(await inputFromForm(request));
+  const { questionOne, confidenceOne } = (result as any).data;
+
+  const qone = encodeURIComponent(questionOne);
+  const cone = encodeURIComponent(confidenceOne);
+  return formAction({
+    request,
+    schema,
+    mutation,
+    successPath: `/images/${img}/qtwo?confidence=${cone}&question=${qone}`,
+  });
 };
 
 const QuestionOne = () => {

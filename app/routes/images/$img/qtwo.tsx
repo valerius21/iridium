@@ -1,3 +1,4 @@
+import { useLoaderData } from "@remix-run/react";
 import type { ActionFunction, LoaderFunction } from "@remix-run/server-runtime";
 import { withZod } from "@remix-validated-form/with-zod";
 import _ from "lodash";
@@ -9,9 +10,11 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import InputField from "~/components/form/image/InputField";
 import LikertScale from "~/components/form/survey/LikertField";
-import { getImage } from "~/images.server";
+import { prisma } from "~/db.server";
+import { getImage, updateUserSubmissionCounts } from "~/images.server";
 import { getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
+import { qOneSchema } from "./qone";
 
 export const questionTwoProps = {
   Bekannte: false,
@@ -30,6 +33,8 @@ const confirmationLikert: { fieldText: string; value: string | number }[] = [
 ];
 
 const schema = z.object({
+  userId: z.string(),
+  datasetId: z.string(),
   confidenceTwo: likert,
   questionTwo: zfd
     .repeatableOfType(
@@ -51,10 +56,41 @@ const schema = z.object({
       val.forEach((item) => (result[item] = true));
       return checkQuestionTwo(result);
     }, "Bitte überprüfen Sie Ihre Antworten auf logische Fehler"),
+  ...qOneSchema,
 });
 
 export const mutation = makeDomainFunction(schema)(async (values) => {
   console.log("Saving...", values);
+  const {
+    confidenceOne,
+    datasetId,
+    confidenceTwo,
+    questionOne,
+    questionTwo,
+    userId,
+  } = values;
+  const exists = await prisma.submission.count({
+    where: {
+      AND: [{ userId }, { datasetId }],
+    },
+  });
+  if (exists != 0) {
+    return true;
+  }
+
+  await prisma.submission.create({
+    data: {
+      userId,
+      confidenceOne: parseInt(confidenceOne),
+      confidenceTwo: parseInt(confidenceTwo[0]),
+      datasetId,
+      questionOne: questionOne,
+      questionTwo: questionTwo,
+    },
+  });
+
+  // update User count
+  updateUserSubmissionCounts(userId);
 });
 
 export const action: ActionFunction = async ({ request }) => {
@@ -72,13 +108,39 @@ export const action: ActionFunction = async ({ request }) => {
   });
 };
 
+// loads values from the previous question
+export const loader: LoaderFunction = async ({ request, params }) => {
+  const userId = await getUserId(request);
+  const { img: datasetId } = params;
+  const url = new URL(request.url);
+  const qone = url.searchParams.get("question");
+  const cone = url.searchParams.get("confidence");
+  return {
+    questionOne: qone,
+    confidenceOne: cone,
+    userId,
+    datasetId,
+  };
+};
+
 const QuestionTwo = () => {
+  const { userId, questionOne, confidenceOne, datasetId } = useLoaderData<{
+    questionOne: string;
+    confidenceOne: number;
+    userId: string;
+    datasetId: string;
+  }>();
+
   return (
     <ValidatedForm
       method="post"
       validator={withZod(schema)}
       action={`/images/a9c038d4-6770-4b61-8cd3-5e657d465ccd/qtwo`}
     >
+      <input type="hidden" name="userId" value={userId} />
+      <input type="hidden" name="questionOne" value={questionOne} />
+      <input type="hidden" name="confidenceOne" value={confidenceOne} />
+      <input type="hidden" name="datasetId" value={datasetId} />
       {/* QUESTION TWO */}
       <fieldset name="questionTwo" className="mb-5">
         <p id="question-two-title" className="font-semibold">
