@@ -1,13 +1,20 @@
 import type { Submission } from "@prisma/client";
 import { useLoaderData, Outlet } from "@remix-run/react";
 import type { Session, LoaderFunction } from "@remix-run/server-runtime";
+import { redirect } from "@remix-run/server-runtime";
 import { useEffect } from "react";
 import { useMediaQuery } from "react-responsive";
 import { atom, useRecoilState } from "recoil";
 import invariant from "tiny-invariant";
 import { getImage, getSubmissionCount } from "~/images.server";
 import type { ImageAttribute } from "~/utils/imageHelper.server";
-import { badRequest, getUserId, getUserSession } from "~/utils/session.server";
+import { getMingleLinks } from "~/utils/register";
+import {
+  badRequest,
+  getUser,
+  getUserId,
+  getUserSession,
+} from "~/utils/session.server";
 
 // TODO: #12 remove for release
 export const imageHost = "https://c102-251.cloud.gwdg.de";
@@ -41,6 +48,17 @@ export const loader: LoaderFunction = async ({
   }
 
   const count = await getSubmissionCount(uid);
+
+  // redirect
+  const user = await getUser(uid);
+  invariant(user, "[/images.tsx] user not found");
+  const { currentPrivateSubmissions, currentPublicSubmissions } = user;
+  if (currentPrivateSubmissions + currentPublicSubmissions >= 60) {
+    const {
+      mingleLinks: { done },
+    } = await getMingleLinks();
+    return redirect(done + user.ticket);
+  }
 
   // set session in state
   const session = await getUserSession(request);
@@ -79,10 +97,10 @@ const Images = () => {
       <h1 className="text-3xl font-bold">Image Evaluation</h1>
       <progress
         className="progress progress-success w-64"
-        value={data.count}
+        value={data.count + 1}
         max={60}
       ></progress>
-      <h4 className="font-bold">{data.count} / 60</h4>
+      <h4 className="font-bold">{data.count + 1} / 60</h4>
     </>
   );
 

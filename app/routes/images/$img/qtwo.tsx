@@ -122,38 +122,39 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   const qone = url.searchParams.get("question");
   const cone = url.searchParams.get("confidence");
 
-  invariant(userId, "uid is required");
+  invariant(userId, "userId is required");
   const user = await getUser(userId);
   invariant(user, "user not found");
-  const submissionCount =
-    user.currentPrivateSubmissions + user.currentPublicSubmissions;
+  // const submissionCount =
+  //   user.currentPrivateSubmissions + user.currentPublicSubmissions;
 
-  const failedAttentionChecks = await prisma.attentionCheck.count({
-    where: {
-      AND: [{ userId }, { passed: false }],
-    },
-  });
+  // const failedAttentionChecks = await prisma.attentionCheck.count({
+  //   where: {
+  //     AND: [{ userId }, { passed: false }],
+  //   },
+  // });
 
-  const {
-    mingleLinks: { done, quality },
-  } = await getMingleLinks();
+  // const {
+  //   mingleLinks: { done, quality },
+  // } = await getMingleLinks();
 
-  // Qualityfail
-  if (failedAttentionChecks == 2) {
-    return redirect(quality + user.ticket);
-  }
+  // // Qualityfail
+  // if (failedAttentionChecks == 2) {
+  //   return redirect(quality + user.ticket);
+  // }
 
-  if (submissionCount >= 60) {
-    return redirect(done + user.ticket);
-  }
+  // if (submissionCount >= 60) {
+  //   return;
+  //   // return redirect(done + user.ticket);
+  // }
 
-  const attentionChecks = await prisma.attentionCheck.count({
-    where: { userId },
-  });
+  // const attentionChecks = await prisma.attentionCheck.count({
+  //   where: { userId },
+  // });
 
-  if (isAttCheck(submissionCount, attentionChecks)) {
-    return redirect(`/images/${datasetId}/att`);
-  }
+  // if (isAttCheck(submissionCount, attentionChecks)) {
+  //   return redirect(`/images/${datasetId}/att`);
+  // }
 
   return {
     questionOne: qone,
