@@ -12,7 +12,6 @@ import { getImage } from "~/images.server";
 import { logger } from "~/utils/logger.server";
 import { getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
-import { confirmationLikert } from "../images/$img/qone";
 
 const schema = z.object({
   uid: z.string(),
@@ -35,6 +34,17 @@ const schema = z.object({
 });
 
 const TAG = "[survey/3]";
+
+const confirmationLikert: {
+  fieldText: string;
+  value: string | number;
+}[] = [
+  { fieldText: "1 - stimme überhaupt nicht zu", value: 1 },
+  { fieldText: "2", value: 2 },
+  { fieldText: "3", value: 3 },
+  { fieldText: "4", value: 4 },
+  { fieldText: "5 - stimme voll zu", value: 5 },
+];
 
 export const mutation = makeDomainFunction(schema)(async (values) => {
   logger.info(values, TAG + "mutation");
@@ -118,7 +128,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const InterpersonalPrivacyConcerns = () => {
   const { user } = useLoaderData<{ user: string }>();
-  let questionNo = 14;
+  let questionNo = 13;
   return (
     <>
       <h2>Zwischenmenschliche Datenschutzbedenken </h2>

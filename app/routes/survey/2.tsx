@@ -213,9 +213,7 @@ const SocialMediaUsage = () => {
         />
 
         <RadioField
-          title={`${
-            questionNo + 1
-          }.) Wie häufig benutzen Sie mobile Geräte wie ein Smartphone oder ein Tablet?`}
+          title={`${questionNo}.) Wie häufig benutzen Sie mobile Geräte wie ein Smartphone oder ein Tablet?`}
           name="internet_usage_frequency_on_mobile"
           options={[
             "Die meiste Zeit des Tages",
