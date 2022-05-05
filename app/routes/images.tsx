@@ -77,6 +77,11 @@ const Images = () => {
   const headlines = (
     <>
       <h1 className="text-3xl font-bold">Image Evaluation</h1>
+      <progress
+        className="progress progress-success w-64"
+        value={data.count}
+        max={60}
+      ></progress>
       <h4 className="font-bold">{data.count} / 60</h4>
     </>
   );

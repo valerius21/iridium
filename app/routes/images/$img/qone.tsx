@@ -80,7 +80,7 @@ const QuestionOne = ({
   const params = useParams();
   // const { userId } = useLoaderData<{ userId: string }>();
   const userId = useRecoilValue(UserAtom);
-  console.log(userId);
+  // console.log(userId);
   return (
     <ValidatedForm
       method="post"
