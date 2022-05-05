@@ -94,13 +94,11 @@ const Demographics = () => {
             "Fachhochschule",
             "Universität",
             "Promotion",
-            "Nicht antworten",
+            // "Nicht antworten",
           ]}
         />
         <RadioField
-          title={`${
-            questionNo + 1
-          }.) Welche der folgenden Auswahlmöglichkeiten beschreiben Sie am besten?`}
+          title={`${questionNo}.) Welche der folgenden Auswahlmöglichkeiten beschreiben Sie am besten?`}
           name="relationship_status"
           options={[
             "Verheiratet",
@@ -108,7 +106,7 @@ const Demographics = () => {
             "Geschieden",
             "Getrennt lebend",
             "Ledig",
-            "Nicht antworten",
+            // "Nicht antworten",
           ]}
         />
         <button className="btn btn-primary my-5">Weiter</button>

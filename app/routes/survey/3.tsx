@@ -12,6 +12,7 @@ import { getImage } from "~/images.server";
 import { logger } from "~/utils/logger.server";
 import { getUserId } from "~/utils/session.server";
 import { likert } from "~/utils/validators";
+import { confirmationLikert } from "../images/$img/qone";
 
 const schema = z.object({
   uid: z.string(),
@@ -117,7 +118,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const InterpersonalPrivacyConcerns = () => {
   const { user } = useLoaderData<{ user: string }>();
-  let questionNo = 1;
+  let questionNo = 14;
   return (
     <>
       <h2>Zwischenmenschliche Datenschutzbedenken </h2>
@@ -130,81 +131,97 @@ const InterpersonalPrivacyConcerns = () => {
         <LikertField
           title={`${questionNo++}.) Normalerweise stört es mich, wenn Leute mich etwas persönliches fragen.`}
           name="sharing_personal_information_bothered"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich erzähle den Leuten alles, was sie über mich wissen wollen.`}
           name="sharing_personal_information_freely"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich habe nichts vor anderen Leuten zu verbergen.`}
           name="openess"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich bin besorgt, dass andere Leute zu viele persönliche Dinge über mich wissen.`}
           name="worried_about_privacy"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Im Vergleich zu anderen bin ich sensibler, wenn es darum geht, persönliche Informationen mit anderen Menschen zu teilen`}
           name="compare_privacy_with_others"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Für mich ist es das Wichtigste, Dinge vor anderen privat zu halten.`}
           name="privacy_priority"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Es stört mich nicht, dass andere Menschen persönliche Dinge über mich wissen.`}
           name="dont_care"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Die meisten persönlichen Dinge, die ich mit anderen teile, sind ohnehin öffentlich zugänglich`}
           name="public_self_information"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich habe Sorge, dass meine persönlichen Informationen von anderen Personen eingesehen werden als denjenigen, die sie sehen sollen.`}
           name="information_access_concerns"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich mache mir Sorgen, dass andere Leute Dinge, die ich über mich preisgebe, aus dem Zusammenhang reißen könnten`}
           name="out_of_context_information"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Wenn mich jemand nach etwas Persönlichem fragt, überlege ich manchmal zweimal, bevor ich es preisgebe.`}
           name="overthinking_information"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich halte es für riskant, anderen persönliche Dinge über mich zu erzählen.`}
           name="paranoid"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Die Weitergabe persönlicher Informationen an andere kann viele unerwartete Probleme mit sich bringen.`}
           name="consequences_of_sharing_personal_information"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich fühle mich sicher dabei, anderen persönliche Dinge über mich zu erzählen.`}
           name="self_confident_info"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo++}.) Ich fühle mich wohl damit, meine privaten Gedanken und Gefühle mit anderen zu teilen.`}
           name="self_confident_thoughts"
+          selectOptions={confirmationLikert}
         />
 
         <LikertField
           title={`${questionNo}.) Ich bespreche meine Probleme und Sorgen normalerweise mit anderen`}
           name="sharing_feelings_with_others"
+          selectOptions={confirmationLikert}
         />
 
         <button className="btn btn-primary my-5" type="submit">

@@ -19,7 +19,10 @@ const sensibleLikert: { fieldText: string; value: string | number }[] = [
   { fieldText: "stimme voll zu", value: "stimme voll zu" },
 ];
 
-const confirmationLikert: { fieldText: string; value: string | number }[] = [
+export const confirmationLikert: {
+  fieldText: string;
+  value: string | number;
+}[] = [
   { fieldText: "1 - sehr unsicher", value: 1 },
   { fieldText: "2", value: 2 },
   { fieldText: "3", value: 3 },
@@ -97,7 +100,7 @@ const QuestionOne = ({
         <p id="question-one-title" className="font-semibold">
           {!isAttentionCheck ? (
             <>
-              Angenommen, Sie hätten diese Bild mit Ihrer eigenen Kamera
+              1.a) Angenommen, Sie hätten diese Bild mit Ihrer eigenen Kamera
               aufgenommen, inwieweit würden Sie der folgenden Aussage zustimmen:{" "}
               <br></br>
               <span className="text-center italic">
@@ -106,8 +109,8 @@ const QuestionOne = ({
             </>
           ) : (
             <>
-              Wie wahrscheinlich ist es, dass Sie aufmerksam sind? Bitte wählen
-              Sie "nicht entscheidbar" aus.
+              1.a) Wie wahrscheinlich ist es, dass Sie aufmerksam sind? Bitte
+              wählen Sie "nicht entscheidbar" aus.
             </>
           )}
         </p>
@@ -120,7 +123,7 @@ const QuestionOne = ({
 
       {/* CONFIRM ONE */}
       <LikertScale
-        title="Wie sicher sind Sie sich mit Ihrer Entscheidung?"
+        title="1.b) Wie sicher sind Sie sich mit Ihrer Entscheidung?"
         name="confidenceOne"
         selectOptions={confirmationLikert}
       />

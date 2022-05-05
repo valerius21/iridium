@@ -88,7 +88,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 const SocialMediaUsage = () => {
   const { user } = useLoaderData<{ user: string }>();
-  let questionNo = 1;
+  let questionNo = 4;
   return (
     <>
       <h2>Social Media Nutzung</h2>

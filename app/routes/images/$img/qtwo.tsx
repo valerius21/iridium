@@ -184,8 +184,8 @@ const QuestionTwo = () => {
       {/* QUESTION TWO */}
       <fieldset name="questionTwo" className="mb-5">
         <p id="question-two-title" className="font-semibold">
-          Weiterhin unter der Annahme, dass Sie haben dieses Bild aufgenommen
-          hätten: Mit wem würden Sie es am ehesten teilen?
+          2.a) Weiterhin unter der Annahme, dass Sie haben dieses Bild
+          aufgenommen hätten: Mit wem würden Sie es am ehesten teilen?
         </p>
         <InputField
           type="checkbox"
@@ -215,7 +215,7 @@ const QuestionTwo = () => {
       </fieldset>
       {/* CONFIRM TWO */}
       <LikertScale
-        title="Wie sicher sind Sie sich mit Ihrer Entscheidung?"
+        title="2.b) Wie sicher sind Sie sich mit Ihrer Entscheidung?"
         name="confidenceTwo"
         selectOptions={confirmationLikert}
       />
