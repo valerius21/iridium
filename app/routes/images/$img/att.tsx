@@ -33,6 +33,8 @@ export const mutation = makeDomainFunction(schema)(async (values) => {
       },
     });
 
+    if (!timestamp) return;
+
     const lastAttCheckInSecs = differenceInSeconds(
       new Date(),
       timestamp!.createdAt
