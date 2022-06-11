@@ -7,7 +7,7 @@ const Navbar: FC = () => {
   const ticket = searchParams.get("tic") || "";
   return (
     <div>
-      <div className="navbar rounded-box mb-2 bg-neutral text-neutral-content shadow-lg">
+      <div className="rounded-box mb-2 bg-neutral text-neutral-content shadow-lg sm:navbar">
         <div className="mx-2 flex-none px-2">
           <span className="text-md hidden max-w-xs font-bold md:block md:text-lg lg:max-w-lg">
             Studie zur Privatsphäre-bewussten Bildklassifizierung

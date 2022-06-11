@@ -59,6 +59,9 @@ const DSGVO = () => {
           6, 37073 Göttingen. Mehr unter
           https://www.uni-goettingen.de/de/576209.html
         </p>
+	<p>
+	  Bitte beachten Sie auch das <a className="link link-primary" target="_blank" href="https://privacyagentcsp.uni-goettingen.de/540cb75550adf33f281f29132dddd14fded85bfc.pdf">Hinweisblatt zu Art. 13 DSGVO</a>.
+	</p>
         <p>
           Mit Beschwerden dürfen Sie sich jederzeit auch direkt an die
           Landesbeauftragte für den Datenschutz Niedersachsen, Prinzenstraße 5,
