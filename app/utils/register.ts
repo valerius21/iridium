@@ -170,6 +170,7 @@ export const action: ActionFunction = async ({ request }) => {
   // redirects to quotafull if no slot is available
   if (!isValid) {
     const config = await fetchConfig(configURL);
+    logger.warn(requestData, "quotafull - redirecting");
     return redirect(config.redirects.quotafull + ticket);
   }
 
