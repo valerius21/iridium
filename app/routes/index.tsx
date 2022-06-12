@@ -43,6 +43,7 @@ const Home = () => {
             Sharing-Verhalten im Hinblick auf die Demographie der Nutzer, die
             Nutzung sozialer Medien und ihre Bedenken bezüglich der Privatsphäre
             zu verstehen.
+	    Letztlich wird nur der Datensatz, der aus gelabelten Bildern und den entsprechenden anonymisierten Benutzerkennungen besteht, als Open Source öffentlich zugänglich sein.
           </p>
           <p className="prose prose-xl prose-stone">
             Das Endziel unserer Studie ist es, die annotierten Bilder zu
