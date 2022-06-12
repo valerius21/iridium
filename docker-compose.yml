@@ -1,13 +1,14 @@
-version: "3.7"
+version: "3.9"
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:13
     restart: always
+    container_name: integration-tests-prisma
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_USER=prisma
+      - POSTGRES_PASSWORD=prisma
+      - POSTGRES_DB=tests
     ports:
-      - "5432:5432"
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - "5433:5432"
+    # volumes:
+    #   - ./postgres-data:/var/lib/postgresql/data
