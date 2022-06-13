@@ -256,26 +256,59 @@ describe("testing quotafull functions", () => {
 
     expect(count).toBe(6);
   });
+
+  test("should return false if slots are full for male and female", async () => {
+    const config = await fetchConfig(endpoint("/config"));
+    let count = 0;
+
+    for (let index = 0; index < 20; index++) {
+      count = await prisma.user.count();
+      if (count < 5) {
+        const isAvailable = await slotAvailable(config, testUser.age, "w");
+        expect(isAvailable).toBeTruthy();
+        await prisma.user.create({
+          data: {
+            ...testUser,
+            gender: "w",
+          },
+        });
+      } else if (count >= 5 && count < 10) {
+        const isAvailable = await slotAvailable(config, testUser.age, "m");
+        expect(isAvailable).toBeTruthy();
+        await prisma.user.create({
+          data: {
+            ...testUser,
+            gender: "m",
+          },
+        });
+      } else {
+        count; // ?
+        expect(count).toBe(10);
+        const isAvailable = await slotAvailable(config, testUser.age, "m");
+        expect(isAvailable).toBeFalsy();
+      }
+    }
+  });
 });
 
 describe("testing validateSignUp", () => {
   const config = fetchConfig(endpoint("/config"));
-  test("should validate a sign-up request as a wrapper of slotAvailable", async () => {
-    const sur = {
-      ticket: "fox",
-      country: true,
-      tos: true,
-      age: "18-24",
-      gender: "w",
-      socialNetworks: true,
-    };
-    const result = await validateSignUp(await config, sur);
-    expect(result).toBeTruthy();
-  });
+  // test("should validate a sign-up request as a wrapper of slotAvailable", async () => {
+  //   const sur = {
+  //     ticket: "fox",
+  //     country: true,
+  //     tos: true,
+  //     age: "18-24",
+  //     gender: "w",
+  //     socialNetworks: true,
+  //   };
+  //   const result = await validateSignUp(await config, sur);
+  //   expect(result).toBeTruthy();
+  // });
 
-  test.todo("invalid inputs for the gender function", async () => {
-    // const signUpRequest = {};
-    // const conf = await config;
+  test.skip("invalid inputs for the gender function", async () => {
+    const signUpRequest = {};
+    const conf = await config;
     // expect(await validateSignUp(conf, {age: testAge, gender: 'bro'}))
   });
 });

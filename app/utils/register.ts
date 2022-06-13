@@ -49,7 +49,6 @@ invariant(configURL.length > 0, "CONFIG_URL is not set");
 // Load config
 export const fetchConfig = async (url: string): Promise<Config> => {
   const { data } = await axios.get(url);
-
   // Parse config
   return yaml.load(data) as Config;
 };
@@ -115,6 +114,13 @@ export const slotAvailable = async (
   const dAvailable = configSlots.d - dbSlots.d;
   const mAvailable = configSlots.m - dbSlots.m + dAvailable;
   const wAvailable = configSlots.w - dbSlots.w + dAvailable;
+
+  const isGroupFull =
+    dbSlots.d + dbSlots.m + dbSlots.w >=
+    configSlots.d + configSlots.m + configSlots.w;
+  if (isGroupFull) {
+    return false;
+  }
 
   if (gender == "d") return dAvailable > 0;
 
