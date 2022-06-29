@@ -9,3 +9,7 @@ node_modules
 /postgres-data
 
 /app/styles/tailwind.css
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/e2e/*.png

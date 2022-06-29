@@ -1,5 +1,4 @@
-import type { FC } from "react";
-import { nanoid } from "nanoid";
+import { FC, useId } from "react";
 import { useField } from "remix-validated-form";
 
 export interface CheckBoxFielProps {
@@ -14,7 +13,7 @@ const CheckBoxButton: FC<{ name: string; label: string }> = ({
   name,
 }) => {
   const { error, getInputProps } = useField(name);
-  const hash = nanoid(10);
+  const hash = useId()
 
   return (
     <>
@@ -51,7 +50,7 @@ const CheckBoxButton: FC<{ name: string; label: string }> = ({
 
 const OtherField: FC<{ name: string; label: string }> = ({ label, name }) => {
   const { error, getInputProps } = useField(name);
-  const hash = nanoid(10);
+  const hash = useId();
 
   return (
     <>

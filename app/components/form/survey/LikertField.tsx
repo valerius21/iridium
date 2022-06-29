@@ -1,5 +1,4 @@
-import { nanoid } from "nanoid";
-import type { FC } from "react";
+import { FC, useId } from "react";
 import { useField } from "remix-validated-form";
 import FormError from "~/components/form/FormError";
 
@@ -15,7 +14,7 @@ const LikertButton: FC<{ name: string; option: Option }> = ({
   name,
   option,
 }) => {
-  const hash = nanoid(10);
+  const hash = useId()
   const { getInputProps, error } = useField(name);
   return (
     <>

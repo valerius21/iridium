@@ -1,5 +1,4 @@
-import type { FC } from "react";
-import { nanoid } from "nanoid";
+import { FC, useId} from "react";
 import { useField } from "remix-validated-form";
 
 export interface RadioFieldProps {
@@ -10,7 +9,7 @@ export interface RadioFieldProps {
 
 const RadioButton: FC<{ name: string; label: string }> = ({ label, name }) => {
   const { error, getInputProps } = useField(name);
-  const hash = nanoid(10);
+  const hash = useId();
 
   return (
     <>
