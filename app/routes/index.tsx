@@ -41,7 +41,7 @@ const Home = () => {
             hinaus haben wir zur Ergänzung der Studie innerhalb der
             Web-Applikation eine Umfrage mit 32 Fragen entworfen, um das
             Sharing-Verhalten im Hinblick auf die Demographie der Nutzer, die
-            Nutzung sozialer Medien und ihre Bedenken bezüglich der Privatsphäre
+                   Nutzung sozialer Medien und ihre Bedenken bezüglich der Privatsphäre
             zu verstehen.
 	    Letztlich wird nur der Datensatz, der aus gelabelten Bildern und den entsprechenden anonymisierten Benutzerkennungen besteht, als Open Source öffentlich zugänglich sein.
           </p>

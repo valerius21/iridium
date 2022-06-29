@@ -2,6 +2,12 @@ import type { Submission, User } from "@prisma/client";
 import _ from "lodash";
 import invariant from "tiny-invariant";
 import { prisma as db } from "~/db.server";
+import {
+  MIN_ANNOTATIONS,
+  MAX_ANNOTATIONS,
+  IMAGE_DISTRIBUTION,
+  MAX_SUBMISSIONS
+} from "~/utils/constants.server"
 
 export type Image = {
   attributes: ImageAttribute;
@@ -86,13 +92,6 @@ export class ImageHelper {
   }
 
   private static async pickRandomImages(n: number, isPrivate: boolean) {
-    // const cached = dbCache.get<{
-    //     attributes: Prisma.JsonValue;
-    //     submission: Submission[];
-    //     id: string;
-    // }[]>('randomImages')
-
-    // if (cached) return cached
 
     const ids = await db.dataset.findMany({
       select: {
@@ -122,13 +121,12 @@ export class ImageHelper {
         return ds;
       })
     );
-    // dbCache.set('randomImages', datasets)
     return datasets;
   }
 
   /**
    * Returns a random image from the dataset with the bias towards the images with the most annotations.
-   * @param uid the user id
+   * @param user the user id
    * @returns a preferred, random image
    */
   async getImage(user: User): Promise<Image> {
@@ -139,9 +137,9 @@ export class ImageHelper {
     const nPrivate = this.studySize * this.weight - currentPrivateSubmissions;
     const nPublic = this.studySize * this.weight - currentPublicSubmissions;
 
-    // get the images with the most annotations, but less then 40
-    let privateImgs = await this.getPreviousImages(true, 1, 40);
-    let publicImgs = await this.getPreviousImages(false, 1, 40);
+    // get the images with the most annotations, but less then MAX_ANNOTATIONS
+    let privateImgs = await this.getPreviousImages(true, MIN_ANNOTATIONS, MAX_ANNOTATIONS);
+    let publicImgs = await this.getPreviousImages(false, MIN_ANNOTATIONS, MAX_ANNOTATIONS);
 
     // padding the images with random images
     let privateRandoms = await ImageHelper.pickRandomImages(
@@ -191,4 +189,4 @@ export class ImageHelper {
   }
 }
 
-export const imageHelper = new ImageHelper(60, 0.5);
+export const imageHelper = new ImageHelper(MAX_SUBMISSIONS, IMAGE_DISTRIBUTION);
